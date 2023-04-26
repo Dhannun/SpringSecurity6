@@ -1,0 +1,43 @@
+#server.port=8009
+#server.error.include-message=always
+#server.error.include-binding-errors=always
+#
+#
+#  ############################ MySQL Connection ##########################
+#
+#spring.datasource.url=jdbc:mysql://localhost:3306/bitssense
+#spring.datasource.username=root
+#spring.datasource.password=
+#spring.jpa.hibernate.ddl-auto=update
+#  #spring.jpa.hibernate.ddl-auto=create-drop
+#spring.jpa.properties.hibernate.format_sql=true
+#spring.jpa.show-sql=true
+
+server:
+  port: 8888
+  error:
+    include-message: always
+    include-binding-error: always
+
+spring:
+  datasource:
+#    url: jdbc:postgresql://localhost:5432/security
+    url: jdbc:mysql://localhost:3306/security
+#    driverClassName: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password:
+
+  jpa:
+    hibernate:
+#      ddlAuto: create
+      ddl-auto: create-drop
+#    showSql: true
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+#    database: postgresql
+    database: mysql
+#    databasePlatform:
+    database-platform: org.hibernate.dialect.MySQLDialect
