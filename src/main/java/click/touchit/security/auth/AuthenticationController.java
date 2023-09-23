@@ -3,6 +3,9 @@ package click.touchit.security.auth;
 import click.touchit.security.dto.request.AuthenticationRequest;
 import click.touchit.security.dto.request.RegisterRequest;
 import click.touchit.security.dto.response.AuthenticationResponse;
+import click.touchit.security.dto.response.Login;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,9 +28,14 @@ public class AuthenticationController {
   }
 
   @PostMapping("/authenticate")
-  public ResponseEntity<AuthenticationResponse> register(
+  public ResponseEntity<Login> login(
       @RequestBody AuthenticationRequest request
   ){
     return ResponseEntity.ok(authenticationService.authenticate(request));
+  }
+
+  @PostMapping("refresh_token")
+  public ResponseEntity<Login> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+    return ResponseEntity.ok(authenticationService.refreshToken(request, response));
   }
 }

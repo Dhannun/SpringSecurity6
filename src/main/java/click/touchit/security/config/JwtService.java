@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,14 @@ import static io.jsonwebtoken.SignatureAlgorithm.HS256;
 @Service
 public class JwtService {
 
-  private static final String SECRET_KEY = "4528482B4D6251655468576D597133743677397A24432646294A404E635266556A586E327234753778214125442A472D4B6150645367566B5970337336763879";
+  @Value("${application.security.jwt.secret-key}")
+  private String secretKey;
+
+  @Value("${application.security.jwt.expiration}")
+  private long jwtExpiration;
+
+  @Value("${application.security.jwt.refresh-token.expiration}")
+  private long refreshExpiration;
 
   public String extractUsername(String token) {
     return extractClaim(token, Claims::getSubject);
@@ -29,22 +37,34 @@ public class JwtService {
     return claimsResolver.apply(claims);
   }
 
-//  JWT with claims
+  //  JWT with claims
   public String generateToken(
       Map<String, Object> extraClaims,
       UserDetails userDetails
+  ) {
+    return buildToken(extraClaims, userDetails, jwtExpiration);
+  }
+  public String generateRefreshToken(
+      UserDetails userDetails
+  ) {
+    return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+  }
+
+  private String buildToken(
+      Map<String, Object> extraClaims,
+      UserDetails userDetails,
+      long expiration
   ) {
     return Jwts
         .builder()
         .setClaims(extraClaims)
         .setSubject(userDetails.getUsername())
         .setIssuedAt(new Date(System.currentTimeMillis()))
-        .setExpiration(new Date(System.currentTimeMillis() + 1_000 * 60 * 24))
+        .setExpiration(new Date(System.currentTimeMillis() + expiration)) // 1_000 * 60 * 24 => one day
         .signWith(getSigninKey(), HS256)
         .compact();
   }
-
-//  JWT with no claims
+  //  JWT with no claims
   public String generateToken(UserDetails userDetails) {
     return generateToken(new HashMap<>(), userDetails);
   }
@@ -72,7 +92,7 @@ public class JwtService {
   }
 
   private Key getSigninKey() {
-    byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+    byte[] keyBytes = Decoders.BASE64.decode(secretKey);
     return Keys.hmacShaKeyFor(keyBytes);
   }
 }
