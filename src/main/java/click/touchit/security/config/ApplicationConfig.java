@@ -1,5 +1,6 @@
 package click.touchit.security.config;
 
+import click.touchit.security.exceptions.ResourceNotFoundException;
 import click.touchit.security.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +29,7 @@ public class ApplicationConfig {
 //      }
 //    }
     return username -> userRepository.findByEmail(username)
-        .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
+        .orElseThrow(() -> new ResourceNotFoundException("User With Username [ %s ]".formatted(username)));
   }
 
   @Bean
